@@ -27,7 +27,7 @@ library(DT)
 library(RColorBrewer)
 
 # Upload data
-load("data_app.Rdata")
+load(file="data_app.Rdata",envir = .GlobalEnv)
 
 # User interface
 ui_db <- dashboardPage(
