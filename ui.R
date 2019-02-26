@@ -6,8 +6,10 @@
 
 # Script 2 - User interface
 
-
 # The APP
+
+# Upload data
+load("data_app.Rdata)
 
 # User interface
 ui_db <- dashboardPage(
