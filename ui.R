@@ -8,8 +8,26 @@
 
 # The APP
 
+#Libraries 
+library(xlsx)
+library(readxl)
+library(plyr)
+library(tidyverse)
+library(shiny)
+library(leaflet)
+library(shinydashboard)
+library(shinyWidgets)
+library(magrittr)
+library(rgdal)
+library(lubridate)
+library(stringr)
+library(scales)
+library(beanplot)
+library(DT)
+library(RColorBrewer)
+
 # Upload data
-load("data_app.Rdata)
+load("data_app.Rdata")
 
 # User interface
 ui_db <- dashboardPage(
