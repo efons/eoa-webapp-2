@@ -3,8 +3,12 @@
 # Emilie Fons
 # Michaela Palmer
 
-# setwd("C:/Users/efons/eoa-webapp-2")
-# Required libraries 
+
+# Script 2 - User interface
+
+# The APP
+
+#Libraries 
 library(xlsx)
 library(readxl)
 library(plyr)
@@ -22,12 +26,8 @@ library(beanplot)
 library(DT)
 library(RColorBrewer)
 
-
-
-# Script 2 - User interface
-
-load("data_app.Rdata")
-# The APP
+# Upload data
+load(file="data_app.Rdata",envir = .GlobalEnv)
 
 # User interface
 ui_db <- dashboardPage(
@@ -81,7 +81,6 @@ ui_db <- dashboardPage(
            .small-box {height: 100px}')
 
 )),
-    tags$script(js),
 
  #.box {margin:10px}
             #.#tabBox { height:450px;margin:2px; padding=0px}
@@ -233,13 +232,60 @@ Explore data, maps, graphs and interactive features as they become available."),
                       valueBoxOutput("vbox_pi", width=3),
                       valueBoxOutput("vbox_li",width=3)),
       
+      box(width = 12, id="stressor_var", title="Stressor Variables:",
+          collapsible = T, collapsed=T,
+          
+          
+          pickerInput(inputId = "size_by",
+                      label = tags$i("Explore the relationship between the selected score and potential Stressors by selecting a variable, and clicking the 'Detailed Plots' or 'Detailed Table' tabs below:"),
+                      choices = list(
+                        "Habitat" = c(
+                          "Total PHAB" = "tot_phab",
+                          "Epifaunal Substrate" =
+                            "epifaun_substr",
+                          "Sediment Deposition" = "sed_deposition",
+                          "Shannon Diversity (Natural Substrates)" = "shannon_nst",
+                          "% Substrate Smaller than Sand (<2 mm)" = "pct_smaller_sand",
+                          "Percent Boulders - large & small" = "pct_boulder_ls",
+                          "Percent Fast Water of Reach" =
+                            "pct_fast_water",
+                          "IPI Score" = "ipi",
+                          "% Impervious Area - Watershed" =
+                            "pct_imperv_ws",
+                          "Road density - Watershed" = "road_dsty_ws"
+                        ),
+                        "Biomass" = c(
+                          "Chlorophyll a (mg/m2)" = "chloro_a_mg_m2",
+                          "AFDM (g/m2)" = "afdm_g_m2",
+                          "% Macroalgae Cover" = "pct_macroalg_cvr"
+                        ),
+                        "Nutrients" = c(
+                          "Total Nitrogen (mg/L)" = "tn_mg_l",
+                          "Total Phosphorus(mg/L)" = "tp_mg_l",
+                          "Unionized Ammonia (ug/L)" = "uia_ug_l"
+                        ),
+                        "Water Quality" = c(
+                          "Temperature (C)" = "temp_c",
+                          "Dissolved Oxygen" =
+                            "do_mg_l",
+                          "Conductivity (uS/cm)" = "sp_cond_us_cm"
+                        ),
+                        "Other" = c("Human Disturbance Index (HDI)" = "crhdi_swamp")
+                      )
+                      ,
+                      selected = 'tot_phab',
+                      options = pickerOptions(actionsBox = F, liveSearch = T),
+                      multiple = F)
+          
+      ),
+      
       
       
       tabBox(id="all_outputs",
         width = 12,
        
       
-       tabPanel(title="Score Map", id="map",
+       tabPanel(title="Map", id="map",
         fluidRow(column(12, leafletOutput("map_sites"))),
         fluidRow(column(
           3, actionButton("reset_button", "Reset view")
@@ -252,68 +298,19 @@ Explore data, maps, graphs and interactive features as they become available."),
                    animation = "pulse",
                    fill = F
                  )))), 
-       tabPanel(title='Score Plot', id="summary_plot",
+       tabPanel(title='Plot', id="summary_plot",
                 plotOutput("barplot"),      
                 prettyCheckbox(inputId="show_bar_pct", label= "Show as %?")
        ),
        
        
        tabPanel(
-         title = "Score vs. Stressors",
-         
+         title = "Detailed Plots",
          div(id = "detailed_plots",
            style = "overflow-y: scroll; height: 700px",
            
-           
-           
-           
-        tags$i(h5("Select a potential stressor variable in the dropdown menu below to explore its relationship to creek health scores.")),
-           
-         
-         pickerInput(inputId = "size_by",
-                     label = NULL,
-                     choices = list(
-                       "Habitat" = c(
-                         "Total PHAB" = "tot_phab",
-                         "Epifaunal Substrate" =
-                           "epifaun_substr",
-                         "Sediment Deposition" = "sed_deposition",
-                         "Shannon Diversity (Natural Substrates)" = "shannon_nst",
-                         "% Substrate Smaller than Sand (<2 mm)" = "pct_smaller_sand",
-                         "Percent Boulders - large & small" = "pct_boulder_ls",
-                         "Percent Fast Water of Reach" =
-                           "pct_fast_water",
-                         "IPI Score" = "ipi",
-                         "% Impervious Area - Watershed" =
-                           "pct_imperv_ws",
-                         "Road density - Watershed" = "road_dsty_ws"
-                       ),
-                       "Biomass" = c(
-                         "Chlorophyll a (mg/m2)" = "chloro_a_mg_m2",
-                         "AFDM (g/m2)" = "afdm_g_m2",
-                         "% Macroalgae Cover" = "pct_macroalg_cvr"
-                       ),
-                       "Nutrients" = c(
-                         "Total Nitrogen (mg/L)" = "tn_mg_l",
-                         "Total Phosphorus(mg/L)" = "tp_mg_l",
-                         "Unionized Ammonia (ug/L)" = "uia_ug_l"
-                       ),
-                       "Water Quality" = c(
-                         "Temperature (C)" = "temp_c",
-                         "Dissolved Oxygen" =
-                           "do_mg_l",
-                         "Conductivity (uS/cm)" = "sp_cond_us_cm"
-                       ),
-                       "Other" = c("Human Disturbance Index (HDI)" = "crhdi_swamp")
-                     )
-                     ,
-                     selected = 'tot_phab',
-                     options = pickerOptions(actionsBox = F, liveSearch = T),
-                     multiple = F), 
-        
-        tags$head(tags$style(".selectpicker {z-index:99999 !important;}")),
-        
-            br(),
+           tags$i(h5("Select a potential stressor variable in the dropdown menu above to explore its relationship to creek health scores.")),
+           br(),
            div(style = "font-weight:bold", textOutput("ws_list_2")),
            br(),           
            div(style = "font-weight:bold", textOutput("scatterplots")),
@@ -335,6 +332,7 @@ Explore data, maps, graphs and interactive features as they become available."),
          div(id = "detailed_table",
            style = "overflow-y: scroll; height: 700px",
            
+           tags$i(h5("Select a potential stressor variable in the dropdown menu above to explore its relationship to creek health scores.")),
            tags$i(h5("You can download this table, as well as all the other monitoring results for the selected watersheds and time period, using the 'Download Data' tool on the left of the page.")),
            br(),
            div(style = "font-weight:bold", textOutput("ws_list_1")),
@@ -489,95 +487,23 @@ tabItem(tabName="con_temp",
           choices = as.character(wq_vars_ws),
           selected = as.character(wq_vars_ws[1])
         ),
-        br(),
-        HTML("<i>Hover over the plot and brush to zoom in. Press 'escape' to zoom out.</i>"),
-        plotOutput("temp_timeseries_1", dblclick = "temp_timeseries_1_dbl_click", brush=brushOpts(id="temp_timeseries_1_brush", resetOnNew = T)),
+        plotOutput("temp_timeseries_1"),
         plotOutput("temp_timeseries_2"))),
-
-
 
 
 
 tabItem(tabName = "pathogens",
         h2("Bacterial Indicators"),
-        h4("Under construction"),
-        
-        # Box for inputs 
-        column(4,box(width=12, 
-                     sliderInput(inputId="patho_yr", label="Choose year:", min =min(df_patho$year), max=max(df_patho$year), value=c(min(df_patho$year),max(df_patho$year)), sep="",step=1),
-                     br(),
-                     selectInput(
-                       inputId = "patho_analyte",
-                       label = "Choose Bacterial Indicator:",
-                       choices = patho_vars_analyte,
-                       selected = "E. coli"
-                     ),
-                     downloadButton("downloadData_patho", label = "Data"),
-                     # Input: Choose file type ----
-                     radioButtons("file_type_patho", NULL, inline = T,
-                                  choices = c(".csv", ".xlsx")))),
-        # Box for outputs 
-        column(8,tabBox(width=12,
-                        tabPanel(title="Map",
-                                 leafletOutput("map_patho")),
-                        tabPanel(title="Plot",plotOutput("plot_patho", height="400px"))))
-        
-        
-        
-        ),
+        h4("Under construction")),
         
 
-
-# Chlorine Menu Item
-tabItem(
-  tabName = "chlorine",
-  h2("Chlorine"),
-  h4("Under construction"), 
-  
-  # Box for inputs 
-  column(4,box(width=12, 
-               sliderInput(inputId="chlo_yr", label="Time period", min =min(chlo_vars_yr), max=max(chlo_vars_yr), value=c(min(chlo_vars_yr),max(chlo_vars_yr)), sep="",step=1),
-               br(),
-               pickerInput(
-                 inputId = "chlo_ws",
-                 label = "Choose Watershed:",
-                 choices = as.character(bio_vars_ws),
-                 selected = as.character(bio_vars_ws),
-                 options = list(`actions-box` = TRUE, size = 20),
-                 multiple = T
-               ),
-               downloadButton("downloadData_chlo", label = "Data"),
-               # Input: Choose file type ----
-               radioButtons("file_type_chlo", NULL, inline = T,
-                            choices = c(".csv", ".xlsx")))),
-  # Box for outputs 
-  column(8,tabBox(width=12,
-                  tabPanel(title="Map",
-                           leafletOutput("map_chlo")),
-                  tabPanel(title="Plot",plotOutput("plot_chlo", height="400px"))))
-  
-  
-  
-),
+tabItem(tabName = "chlorine",
+        h2("Chlorine"),
+        h4("Under construction")),
 
 tabItem(tabName = "pesticide",
         h2("Pesticides"),
-        h4("Under Construction"), 
-        
-        # Box for inputs 
-        column(4,box(width=12, 
-                     sliderInput(inputId="tox_yr", label="Year",min=min(tox_vars_yr),max=max(tox_vars_yr), value=2018, step=1, sep=""),                     br(),
-                     selectInput(inputId="tox_season", label="Season", choices=c("Wet"="W","Dry"= "D"), selected="D"),
-                     uiOutput("stressors"),
-                     downloadButton("downloadData_tox", label = "Data"),
-                     # Input: Choose file type ----
-                     radioButtons("file_type_tox", NULL, inline = T,
-                                  choices = c(".csv", ".xlsx")))),
-        # Box for outputs 
-        column(8,tabBox(width=12,
-                        tabPanel(title="Map",
-                                 leafletOutput("map_tox")),
-                        tabPanel(title="Plot",plotOutput("plot_tox", height="400px"))))),
+        h4("Under Construction")),
 
 
 
