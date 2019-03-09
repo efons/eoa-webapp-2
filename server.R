@@ -737,7 +737,6 @@ server <- (function(input, output, session) {
         addLegendCustom(
           position = "topright",
           opacity = 1,
-          borders = c("white", 'white', 'white', "white"),
           colors = colors_bio,
           labels = c(
             "Likely Intact",
@@ -946,6 +945,96 @@ server <- (function(input, output, session) {
     
   )
   
+  
+  
+  # Chlorine 
+  ##############################################################################################
+  
+  # data subset 
+  data_sub_chlo <- reactive({
+   
+    return(sites_chlo %>%  
+      dplyr::filter(watershed %in% input$chlo_ws,
+                    year >= input$chlo_yr[1] & year <= input$chlo_yr[2]))
+    
+  })
+  
+  
+  # MAP 
+  output$map_chlo <- renderLeaflet({
+    leaflet() %>% 
+      addProviderTiles(providers$Esri.WorldTopoMap) %>% 
+      setView(lng = -122, lat = 37.4, zoom = 10)
+  })
+  
+  # Update map with user inputs 
+  observe({
+    
+    # wait for POC menu to be selected 
+    req(input$menu_items == "chlorine") 
+    
+
+    sites_chlo_sub <- data_sub_chlo()
+    
+    
+    popup_chlo <- paste(
+      sep="</br>", 
+      paste0("<b>",sites_chlo_sub$station_code,"</b>", " (",sites_chlo_sub$date_1, ")"),
+      "<b>Chlorine, Total Residual (mg/L):</b>",
+      paste(sites_chlo_sub$tot_chlo_qa_1, sites_chlo_sub$tot_chlo_1), 
+      "<b>Chlorine, Free (mg/L):</b>",
+      paste(sites_chlo_sub$free_chlo_qa_1, sites_chlo_sub$free_chlo_1),
+      ifelse(!is.na(sites_chlo_sub$date_2),paste("</br><b>Resampled in:</b>", sites_chlo_sub$date_2,
+                                                   "</br>", "Free:", sites_chlo_sub$free_chlo_2, "-", "Total:", sites_chlo_sub$tot_chlo_2),""),
+      
+      ifelse(!is.na(sites_chlo_sub$date_3),paste("<b>Resampled in:</b>", sites_chlo_sub$date_3,
+                                                 "</br>", "Free:", sites_chlo_sub$free_chlo_3, "-", "Total:", sites_chlo_sub$tot_chlo_3),"")
+      
+    )
+    
+    
+    
+    
+    
+    get_color_chlo <- function(var) {
+      ifelse(var < 0.08, "green",
+             ifelse(var <0.1, "orange",
+                    "red"))
+    }
+    
+    # with sites df
+    leafletProxy("map_chlo") %>% clearMarkers() %>% clearShapes() %>% clearControls() %>%
+      addCircleMarkers(data=sites_chlo_sub, lat=sites_chlo_sub$lat, lng=sites_chlo_sub$long, 
+                       radius=7, 
+                       weight=1, color="blue", fillColor=get_color_chlo(sites_chlo_sub$tot_chlo_1), 
+                       fillOpacity = 0.9) %>%
+      addCircleMarkers(data=sites_chlo_sub, lat=sites_chlo_sub$lat, lng=sites_chlo_sub$long, 
+                       radius=4, 
+                       weight=1, color="blue", fillColor=get_color_chlo(sites_chlo_sub$free_chlo_1), 
+                       fillOpacity = 0.9,
+                       popup=popup_chlo)
+
+    
+  })
+  
+  
+  output$plot_chlo <- renderPlot({
+    if (nrow(data_sub_chlo())>0){ 
+    data_sub <- data_sub_chlo()
+    
+    p <- ggplot(data=data_sub, aes(x=tot_chlo_1)) + geom_density(alpha=0.5)+ 
+      xlab("Total Residual (mg/L)") + ylab("Density") + 
+      coord_cartesian(xlim=c(0,0.4))
+    
+    d <- ggplot_build(p)$data[[1]]
+      
+    if (nrow(subset(d,x>0.1))>0){
+           p <- p + geom_area(data = subset(d, x > 0.1), aes(x=x, y=y), fill="red")
+    }
+     
+    return(p)
+    }
+  })
   
   
   
@@ -1386,6 +1475,7 @@ server <- (function(input, output, session) {
       
   })
   
+  ranges <- reactiveValues(x=NULL, y=c(0,30))
   
   time_plot_function <- function(data_sub_temp, param) {
     if (nrow(data_sub_temp) > 0) {
@@ -1403,13 +1493,14 @@ server <- (function(input, output, session) {
         p <-
           ggplot(data = data_sub_temp, aes(x = date, y = avDayTemp)) + geom_line(aes(col =
                                                                                        site_id, group = grp))  +
-          ylim(c(0, 30))  + ylab("Average Daily Temperature (\u00B0C)") +
+          ylab("Average Daily Temperature (\u00B0C)") +
           xlab("Date") +
           theme_bw() +
           geom_hline(yintercept = threshold,
                      linetype = 2,
                      col = "red") +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+          coord_cartesian(xlim=ranges$x, ylim=ranges$y, expand=F)
         
       }
       if (param == "avWeek") {
@@ -1419,13 +1510,14 @@ server <- (function(input, output, session) {
         p <-
           ggplot(data = data_sub_temp, aes(x = day1week, y = avWeek, col = site_id)) + geom_point(aes(shape =
                                                                                                         site_id), size = 2) +
-          ylim(c(0, 30))  + ylab("MWAT (\u00B0C)") + xlab("Date") +
+         ylab("MWAT (\u00B0C)") + xlab("Date") +
           geom_hline(yintercept = threshold,
                      linetype = 2,
                      col = "red") +
           scale_shape_manual(values = seq(1, 15, 1)) +
           theme_bw() +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+          coord_cartesian(xlim=ranges$x, ylim=ranges$y, expand=F) 
       }
       
       return(p + 
@@ -1435,6 +1527,8 @@ server <- (function(input, output, session) {
       NULL
     }
   }
+  
+  
   
   temp_timeseries_1 <- reactive({
     filter_dates <- as.Date(cut(as.POSIXct(input$temp_dates,tz=''),"month"))
@@ -1465,6 +1559,7 @@ server <- (function(input, output, session) {
     
   })
   
+
   temp_timeseries_2 <- reactive({
     
     filter_dates <- as.Date(cut(as.POSIXct(input$temp_dates,tz=''),"month"))
@@ -1503,6 +1598,21 @@ server <- (function(input, output, session) {
     p <- temp_timeseries_1()
     return(p)
   })
+  
+  
+  observeEvent(input$temp_timeseries_1_brush,{
+    brush <- input$temp_timeseries_1_brush
+      ranges$x <- c(as.Date(brush$xmin, origin="1970-01-01"), as.Date(brush$xmax, origin="1970-01-01"))
+      ranges$y <- c(brush$ymin, brush$ymax)
+  })
+  
+  observeEvent(input$keyPressed, {
+    ranges$x <- NULL
+    ranges$y <- c(0,30)
+      })
+  
+  
+  
   output$temp_timeseries_2 <- renderPlot({
     p <- temp_timeseries_2()
     return(p)
@@ -1639,7 +1749,190 @@ server <- (function(input, output, session) {
  
   })  
 
- 
+  
+  
+  
+  
+  # Pesticides 
+  ################################################################################################################################
+  
+  
+  
+  # stressors : sediment chemistry or water pesticides 
+  output$stressors <- renderUI({ 
+    if(input$tox_season == "D"){
+      pickerInput(inputId="dry_stressors", label="Stressors:", 
+                  choices=list("Metals" = c("Arsenic", "Cadmium", "Chromium", "Copper", "Lead", "Nickel"),
+                               "Pesticides" = c("Pyrethroid", "Other Pesticides")), selected=tox_vars_stressors_dry[1],
+                  options = pickerOptions(liveSearch = T)
+      )
+      
+    }
+    else {NULL}
+  })
+  
+  # data subsetting
+  
+  tox_data_sub <- reactive({
+    req(!is.null(input$dry_stressors))
+    data_sub <- df_tox %>% 
+      dplyr::filter(year == input$tox_yr, 
+                    season == input$tox_season)
+    data_sub_chem <- df_sedPest %>% 
+      dplyr::filter(year == input$tox_yr,
+                    AnalyteName == input$dry_stressors) %>% 
+      dplyr::select(c(1,3,4,5)) %T>% 
+      {names(.) <- c("StationCode", "StressorName", "StressorQuotient","StressorTrigger")}
+    
+    sites_sub <- sites_tox %>% 
+      filter(StationCode %in% data_sub$StationCode,
+             year(SampleDate)==input$tox_yr) %>% 
+      dplyr::distinct(StationCode, .keep_all=T)
+    
+    if(nrow(data_sub )>0){
+      # filter for First vs. follow up
+      sites_sub <- merge(sites_sub, (data_sub %>% 
+                                       dplyr::filter(sampleType == "First",
+                                                     SigEffect %in% c("Fail","SL")) %>% 
+                                       dplyr::group_by(StationCode) %>%
+                                       dplyr::summarize(n_fail=n(),
+                                                        species_fail = paste(organism_u, collapse="and"),
+                                                        species_pct = paste(organism_u, " with ",PercentEffect, " % Effect", sep="",collapse=" and ")) %>%
+                                       as.data.frame()),all=T) %>% 
+        dplyr::mutate(n_fail = ifelse(is.na(n_fail), 0,n_fail))
+      
+      sites_sub$followups <- sapply(seq(1:nrow(sites_sub)), function(x) 
+        
+        ifelse(length(df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up"
+                             & df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                               df_tox$organism_u %in% strsplit(sites_sub$species_fail, split="and"),"SigEffect"]) > 0, 
+               
+               
+               paste(
+                 df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up" &
+                          df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                          df_tox$organism_u %in% strsplit(sites_sub$species_fail,split="and"),"organism_u"],": ",
+                 df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up" &
+                          df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                          df_tox$organism_u %in% strsplit(sites_sub$species_fail,split="and"),"SigEffect"], " with ",
+                 df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up" &
+                          df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                          df_tox$organism_u %in% strsplit(sites_sub$species_fail,split="and"),"PercentEffect"], "% Effect",
+                 sep="", collapse="and"), 
+               "None"
+        ))
+      
+      sites_sub <- merge(sites_sub,data_sub_chem, all=T)
+      
+      return(sites_sub)
+      
+      
+    }
+    else return(data.frame())
+    
+    
+    
+  })
+  
+  
+  output$map_tox <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      setView(lng = -122,
+              lat = 37.3,
+              zoom = 9) %>% 
+      addLegendCustom("topright", title="Significant toxicity to...",colors=colors_tox, labels=c("0 species","1 species","2 species","3 species"), shapes=rep("circle",4), sizes=rep(10,4)) %>% 
+      
+      addLegend("bottomright", title="Stressor Concentration",colors=c(colors_chem, "grey"), labels=c("Below Threshold", "Above Threshold", "No data for this stressor"))
+  })
+  
+  
+  observe({
+    
+    req(input$menu_items == "pesticide")
+    leafletProxy("map_tox") %>% clearMarkers() %>% clearShapes()
+    
+    sites_sub <- tox_data_sub()
+    
+    get_color_chem <- function(trigger){ 
+      if (input$tox_season == "D") 
+      {colors <- colors_chem[trigger+1]
+      colors[is.na(colors)] <- "grey"
+      return(colors)}
+      else "grey"} 
+    
+    
+    if (nrow(sites_sub) >0){
+      
+      popup_tox <- paste(
+        sep="</br>", 
+        sites_sub$StationCode, 
+        ifelse(sites_sub$n_fail >= 1, 
+               paste("<b> Significant Toxicity for: </b></br>", 
+                     sites_sub$species_pct,
+                     "</br><b>Follow-ups?</b>","</br>", 
+                     sites_sub$followups
+                     
+               ), 
+               "<b>No significant toxicity</b>")
+        
+        
+        
+      )
+      
+      leafletProxy("map_tox") %>% clearMarkers() %>% clearShapes() %>% 
+        addRectangles(data=sites_sub %>% na.omit(), 
+                      lat1=sites_sub$TargetLatitude-0.02, lng1=sites_sub$TargetLongitude-0.02,
+                      lat2=sites_sub$TargetLatitude+0.02, lng2=sites_sub$TargetLongitude+0.02,
+                      fillColor=get_color_chem(sites_sub$StressorTrigger), fillOpacity=0.5, opacity=0,
+                      label=paste("Stressor Quotient:", signif(sites_sub$StressorQuotient,2)))    %>%
+        addCircleMarkers(data=sites_sub, lat=sites_sub$TargetLatitude, 
+                         lng=sites_sub$TargetLongitude,
+                         fillColor=colors_tox[sites_sub$n_fail+1], label=paste(sites_sub$n_fail),
+                         fillOpacity=0.8, weight=1, radius=6, 
+                         popup=popup_tox) 
+    }
+  })
+  
+  
+  # Pathogens
+  ##########################################################################################################
+  
+  data_sub_patho <- reactive({
+    df_patho %>% 
+      dplyr::filter(year >= input$patho_yr[1] & year <=input$patho_yr[2],
+                    Analyte== input$patho_analyte) %>% 
+      dplyr::arrange(desc(year))
+  })
+  
+  
+  output$map_patho <- renderLeaflet({
+    leaflet() %>% 
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      setView(lng = -121.8,
+              lat = 37.3,
+              zoom = 9)
+  })
+  
+  
+  observe({
+    req(input$menu_items == "pathogens")
+    
+    data_sub <- data_sub_patho()
+    popup_patho <- paste(sep="</br>",
+                         "<b>Station Code:</b>", 
+                         data_sub$Station_Code, 
+                         paste("<b>",input$patho_analyte, "concentration (MPN/100mL):</b>",
+                               data_sub$Result))
+    
+    leafletProxy("map_patho") %>% clearMarkers() %>% clearMarkerClusters() %>%
+      addCircleMarkers(lng=data_sub$Longitude, lat= data_sub$Latitude, color= patho_col[data_sub$exceedance+1], 
+                       popup = popup_patho, fillOpacity = 0.8, radius=10,label= paste(data_sub$year),
+                       clusterOptions = markerClusterOptions(showCoverageOnHover = F, freezeAtZoom = 15
+                       )
+      )
+  })  
+  
   
 })
 
