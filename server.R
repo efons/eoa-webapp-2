@@ -18,32 +18,32 @@ server <- (function(input, output, session) {
     showModal(modalDialog(
       title = "Biological Condition Assessment",
       HTML('San Francisco Bay Area Stormwater Municipal Regional Permit (MRP), Provision C.8. on Water Quality Monitoring, 
-      section C.8.d.(i) on Biological Assessments: "The Permittees shall conduct biological
+           section C.8.d.(i) on Biological Assessments: "The Permittees shall conduct biological
            assessments (also referred to herein as bioassessments) in accordance with
            SWAMP Standard Operating Procedures22,23,24 and shall include collection
            and reporting of in-stream biological and physical habitat data according to
            the SWAMP Standard Operating Procedures for Bioassessment,3 including
            benthic algae, benthic macroinvertebrates, water chemistry, and full
            characterization of physical habitat."
-      <br/>
-      <br/>
-
-      The collected bioassessment data is aggregated to compute biological health indicators. Several indicators are currently in use in California: 
-      <ul><li> California Stream Condition Index (CSCI) for benthic macroinvertebrates </li>
-          <li> Algae Stream Condition Index (ASCI) for Soft Algae </li>
-          <li> Algae Stream Condition Index (ASCI) for Diatoms </li>
-          <li> Hybrid Algae Stream Condition Index (ASCI) for both Soft Algae and diatoms </li></ul>
-
-      <br/> 
-      <br/>
-
-      <i> Instructions: Start by selecting an indicator of creek health. Each indicator is computed based on the diversity and number of individuals for a specific aquatic species: benthic macrovertebrates, algae, etc. 
-              Environmental stress (chemistry, nutrient availability, physical habitat, etc) might affect the survival of these species. Therefore, these biological measures
-              can be used as indicators of creek health.This dashboard allows you to visualize the biological health of creeks
-              throughout the Santa Clara Valley, and to investigate the role played by environmental stress on biological condition.</i>')
+           <br/>
+           <br/>
+           
+           The collected bioassessment data is aggregated to compute biological health indicators. Several indicators are currently in use in California: 
+           <ul><li> California Stream Condition Index (CSCI) for benthic macroinvertebrates </li>
+           <li> Algae Stream Condition Index (ASCI) for Soft Algae </li>
+           <li> Algae Stream Condition Index (ASCI) for Diatoms </li>
+           <li> Hybrid Algae Stream Condition Index (ASCI) for both Soft Algae and diatoms </li></ul>
+           
+           <br/> 
+           <br/>
+           
+           <i> Instructions: Start by selecting an indicator of creek health. Each indicator is computed based on the diversity and number of individuals for a specific aquatic species: benthic macrovertebrates, algae, etc. 
+           Environmental stress (chemistry, nutrient availability, physical habitat, etc) might affect the survival of these species. Therefore, these biological measures
+           can be used as indicators of creek health.This dashboard allows you to visualize the biological health of creeks
+           throughout the Santa Clara Valley, and to investigate the role played by environmental stress on biological condition.</i>')
       ,
       easyClose = TRUE, footer=modalButton("Got it!")
-    ))
+      ))
   })
   
   score_desc_txt <- reactive({
@@ -53,7 +53,7 @@ server <- (function(input, output, session) {
     description <- if (score == "csci") {"CSCI stands for California Stream Condition Index. This
       index was developed in ... by ... to .... Values of this index are computed based on ... and thus
       represent .... The values range from 0 to 1, 0 representing the worst score, and 1 the best score.
-      See the table to the left for a more detailed presentation of CSCI score breaks"}
+      See the table below for a more detailed presentation of CSCI score breaks"}
     
     paste0(description)
     })
@@ -67,7 +67,7 @@ server <- (function(input, output, session) {
     df[2,] <- paste(df[2,], " - ", df[3,])
     df[3,] <- paste(df[3,], " - ", df[4,])
     df[4,] <- paste(" > ", df[4,])
-
+    
     
     col=seq(4,1,-1)
     name <- as.character(bio_vars_filter[bio_vars_filter$param == input$filter_by,'name'])
@@ -88,36 +88,36 @@ server <- (function(input, output, session) {
       score_desc_txt(),
       DT::renderDataTable( score_desc_table()),
       easyClose = TRUE, footer=modalButton("Got it!")
-      ))
+    ))
   })
-
-    
-    
-
+  
+  
+  
+  
   # Summary or detailed version? 
-    # option to show/hide the detailed info ? 
-    # using shinyjs or other
-
-    
+  # option to show/hide the detailed info ? 
+  # using shinyjs or other
+  
+  
   
   # map parameter : size filter by stressor variable
- 
+  
   
   
   # Spatial Filter: county vs. watersheds
   output$scnd_sub_ws <- renderUI({
-   
-      pickerInput(
-        inputId = "ws",
-        label = "Choose Watershed",
-        choices = if (input$spatial_filter == "sub_ws") {as.character(bio_vars_ws)} else {NULL},
-        selected = if (input$spatial_filter == "sub_ws") {as.character(bio_vars_ws)} else {NULL},
-        options = list(`actions-box` = ifelse((input$spatial_filter == "sub_ws"),TRUE,FALSE), size = 20),
-        multiple = T
-      )
     
- 
-      
+    pickerInput(
+      inputId = "ws",
+      label = "Choose Watershed",
+      choices = if (input$spatial_filter == "sub_ws") {as.character(bio_vars_ws)} else {NULL},
+      selected = if (input$spatial_filter == "sub_ws") {as.character(bio_vars_ws)} else {NULL},
+      options = list(`actions-box` = ifelse((input$spatial_filter == "sub_ws"),TRUE,FALSE), size = 20),
+      multiple = T
+    )
+    
+    
+    
   })
   
   
@@ -343,9 +343,9 @@ server <- (function(input, output, session) {
   bio_shp <- reactive({
     data <- data_sub() %>% 
       dplyr::select(1:6,8) %T>% 
-    {names(.) <- c("rmc_id", "ws", "subws", "creek", "year", input$filter_by, input$size_by)} %>% 
+      {names(.) <- c("rmc_id", "ws", "subws", "creek", "year", input$filter_by, input$size_by)} %>% 
       dplyr::arrange(rmc_id)
-  
+    
     sites_slct <- data$rmc_id
     sites_sub <- sites %>% 
       dplyr::select(2:7) %>% 
@@ -367,17 +367,17 @@ server <- (function(input, output, session) {
     filename = function() { 
       
       if (!input$file_type == ".shp"){
-              paste(input$spatial_filter, "_table", Sys.Date(), input$file_type, sep = "")
+        paste(input$spatial_filter, "_table", Sys.Date(), input$file_type, sep = "")
       }
       else {paste0("shpExport.zip")} 
     },
- #   content = function(file) {
-#      write.xlsx(data_sub(), file)
- #   }
+    #   content = function(file) {
+    #      write.xlsx(data_sub(), file)
+    #   }
     
     content = function(file) {
       
-       if(input$file_type== ".csv") {
+      if(input$file_type== ".csv") {
         write.csv(data_sub(), file, row.names = FALSE)
       } else if(input$file_type == ".xlsx") {
         write.xlsx(data_sub(), file)
@@ -395,7 +395,7 @@ server <- (function(input, output, session) {
       }
       
     }
-  
+    
   )
   
   
@@ -410,16 +410,16 @@ server <- (function(input, output, session) {
     n_name <- ifelse(n==2,'Watershed',"Subwatershed")
     
     if (!input$show_bar_pct){
-          p <- ggplot(data = data_sub, aes(x = data_sub[,n], fill = data_sub[,7])) + geom_bar()+ ylab("Number of samples")
-          }
+      p <- ggplot(data = data_sub, aes(x = data_sub[,n], fill = data_sub[,7])) + geom_bar()+ ylab("Number of samples")
+    }
     else {
       data_sub <- data_sub %>% 
         dplyr::rename("x_axis"=!!names(.[n]),
-              "score" = !!names(.[6]),
-               "score_cat" = !!names(.[7])) %>% 
+                      "score" = !!names(.[6]),
+                      "score_cat" = !!names(.[7])) %>% 
         dplyr::group_by(x_axis, score_cat, score) %>% 
         dplyr::summarise(n = n()) 
-
+      
       p <- ggplot(data = data_sub, aes(x = x_axis, y=n, fill = score_cat)) + geom_bar(position="fill",stat='identity') + ylab("Percentage of samples") +
         scale_y_continuous(labels = percent_format())
     }
@@ -427,16 +427,16 @@ server <- (function(input, output, session) {
     
     p <- p + 
       scale_fill_manual(values=c( "#A6DBA0"=colors_bio[1], "#FEEBA0"=colors_bio[2], "#FF6D46"=colors_bio[3], "#762A83"=colors_bio[4]),
-                                breaks=colors_bio,
-                                labels=c("Likely Intact", "Possibly Intact", "Likely Altered", "Very Likely Altered")) +
+                        breaks=colors_bio,
+                        labels=c("Likely Intact", "Possibly Intact", "Likely Altered", "Very Likely Altered")) +
       xlab(n_name) + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1), 
             legend.position = "top", legend.box="vertical", legend.title = element_blank()) 
     
     
     return(p)
-
-  
+    
+    
   })
   
   
@@ -480,13 +480,13 @@ server <- (function(input, output, session) {
     showModal(modalDialog(
       title = "Scatterplot coefficients",
       "Pearson's correlation test assesses the strength of the linear relationship
-              between two variables (assumed to be normally distributed). 
-              Both R-squared and p-value can take values between 0 and 1. The closer R-squared is to 1, the stronger the relationship. 
-              The relationship is generally considered to be significant if p-value is below the significance level (e.g. 0.05). 
-              Spearman's correlation test assesses the strength of the monotonic relationship (i.e. either decreasing or increasing, 
-              but not necessarily linear) between the two variables, regardless of their distribution (non-parametric test). 
-              Spearman's Rho can take values between +1 and -1. Values of +1 or -1 indicate a strong monotonic relationship, whether the variables are
-              negatively (-) or positively (+) correlated. p-values below 0.05 are generally considered significant.",
+      between two variables (assumed to be normally distributed). 
+      Both R-squared and p-value can take values between 0 and 1. The closer R-squared is to 1, the stronger the relationship. 
+      The relationship is generally considered to be significant if p-value is below the significance level (e.g. 0.05). 
+      Spearman's correlation test assesses the strength of the monotonic relationship (i.e. either decreasing or increasing, 
+      but not necessarily linear) between the two variables, regardless of their distribution (non-parametric test). 
+      Spearman's Rho can take values between +1 and -1. Values of +1 or -1 indicate a strong monotonic relationship, whether the variables are
+      negatively (-) or positively (+) correlated. p-values below 0.05 are generally considered significant.",
       easyClose = TRUE, footer=modalButton("Got it!")
     ))
   })
@@ -534,7 +534,7 @@ server <- (function(input, output, session) {
           fun.y = median,
           position = position_dodge(width = 0.75)
         ) + 
-       theme(axis.text.x = element_text(angle = 90, hjust = 1))
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
       
       if (threshold >= 0) {
         p <-
@@ -563,7 +563,7 @@ server <- (function(input, output, session) {
   
   output$boxplot2 <- renderPlot({
     data_sub_plots <- as.data.frame(data_sub())
-      return(bio_boxplot(data_sub_plots = data_sub_plots, var_nb = 8))
+    return(bio_boxplot(data_sub_plots = data_sub_plots, var_nb = 8))
     
   }, height = 300, width = 400)
   
@@ -737,7 +737,6 @@ server <- (function(input, output, session) {
         addLegendCustom(
           position = "topright",
           opacity = 1,
-          borders = c("white", 'white', 'white', "white"),
           colors = colors_bio,
           labels = c(
             "Likely Intact",
@@ -807,7 +806,7 @@ server <- (function(input, output, session) {
   
   ## POC data
   ############################################################################################################################
-
+  
   # Plot for POC
   
   data_sub_poc <- reactive({
@@ -826,15 +825,15 @@ server <- (function(input, output, session) {
     
     if (!input$show_bar_pct_POC){
       if (input$poc_contaminant == "hg"){  
-      p <- ggplot(data = data_sub_poc, aes(x = city, fill = hg_conc_cat)) + geom_bar(position="stack",stat='count') + ylab("Number of samples") + 
-        scale_fill_manual("Concentration Category",values=colors_Hg) 
-      
-    }
-    else {  
-      p <- ggplot(data = data_sub_poc, aes(x = city, fill = pcb_conc_cat)) + geom_bar(position="stack",stat='count') + ylab("Number of samples") +
-        scale_fill_manual("Concentration Category",values=colors_PCB) 
-      
-    }
+        p <- ggplot(data = data_sub_poc, aes(x = city, fill = hg_conc_cat)) + geom_bar(position="stack",stat='count') + ylab("Number of samples") + 
+          scale_fill_manual("Concentration Category",values=colors_Hg) 
+        
+      }
+      else {  
+        p <- ggplot(data = data_sub_poc, aes(x = city, fill = pcb_conc_cat)) + geom_bar(position="stack",stat='count') + ylab("Number of samples") +
+          scale_fill_manual("Concentration Category",values=colors_PCB) 
+        
+      }
     }
     else {
       if (input$poc_contaminant == "hg"){  
@@ -865,7 +864,7 @@ server <- (function(input, output, session) {
   output$plot_poc_1 <- renderPlot({
     p <- barplot_poc()
     return(p)  
-    })
+  })
   
   # MAP for POC 
   output$map_poc <- renderLeaflet({
@@ -948,6 +947,96 @@ server <- (function(input, output, session) {
   
   
   
+  # Chlorine 
+  ##############################################################################################
+  
+  # data subset 
+  data_sub_chlo <- reactive({
+    
+    return(sites_chlo %>%  
+             dplyr::filter(watershed %in% input$chlo_ws,
+                           year >= input$chlo_yr[1] & year <= input$chlo_yr[2]))
+    
+  })
+  
+  
+  # MAP 
+  output$map_chlo <- renderLeaflet({
+    leaflet() %>% 
+      addProviderTiles(providers$Esri.WorldTopoMap) %>% 
+      setView(lng = -122, lat = 37.4, zoom = 10)
+  })
+  
+  # Update map with user inputs 
+  observe({
+    
+    # wait for POC menu to be selected 
+    req(input$menu_items == "chlorine") 
+    
+    
+    sites_chlo_sub <- data_sub_chlo()
+    
+    
+    popup_chlo <- paste(
+      sep="</br>", 
+      paste0("<b>",sites_chlo_sub$station_code,"</b>", " (",sites_chlo_sub$date_1, ")"),
+      "<b>Chlorine, Total Residual (mg/L):</b>",
+      paste(sites_chlo_sub$tot_chlo_qa_1, sites_chlo_sub$tot_chlo_1), 
+      "<b>Chlorine, Free (mg/L):</b>",
+      paste(sites_chlo_sub$free_chlo_qa_1, sites_chlo_sub$free_chlo_1),
+      ifelse(!is.na(sites_chlo_sub$date_2),paste("</br><b>Resampled in:</b>", sites_chlo_sub$date_2,
+                                                 "</br>", "Free:", sites_chlo_sub$free_chlo_2, "-", "Total:", sites_chlo_sub$tot_chlo_2),""),
+      
+      ifelse(!is.na(sites_chlo_sub$date_3),paste("<b>Resampled in:</b>", sites_chlo_sub$date_3,
+                                                 "</br>", "Free:", sites_chlo_sub$free_chlo_3, "-", "Total:", sites_chlo_sub$tot_chlo_3),"")
+      
+    )
+    
+    
+    
+    
+    
+    get_color_chlo <- function(var) {
+      ifelse(var < 0.08, "green",
+             ifelse(var <0.1, "orange",
+                    "red"))
+    }
+    
+    # with sites df
+    leafletProxy("map_chlo") %>% clearMarkers() %>% clearShapes() %>% clearControls() %>%
+      addCircleMarkers(data=sites_chlo_sub, lat=sites_chlo_sub$lat, lng=sites_chlo_sub$long, 
+                       radius=7, 
+                       weight=1, color="blue", fillColor=get_color_chlo(sites_chlo_sub$tot_chlo_1), 
+                       fillOpacity = 0.9) %>%
+      addCircleMarkers(data=sites_chlo_sub, lat=sites_chlo_sub$lat, lng=sites_chlo_sub$long, 
+                       radius=4, 
+                       weight=1, color="blue", fillColor=get_color_chlo(sites_chlo_sub$free_chlo_1), 
+                       fillOpacity = 0.9,
+                       popup=popup_chlo)
+    
+    
+  })
+  
+  
+  output$plot_chlo <- renderPlot({
+    if (nrow(data_sub_chlo())>0){ 
+      data_sub <- data_sub_chlo()
+      
+      p <- ggplot(data=data_sub, aes(x=tot_chlo_1)) + geom_density(alpha=0.5)+ 
+        xlab("Total Residual (mg/L)") + ylab("Density") + 
+        coord_cartesian(xlim=c(0,0.4))
+      
+      d <- ggplot_build(p)$data[[1]]
+      
+      if (nrow(subset(d,x>0.1))>0){
+        p <- p + geom_area(data = subset(d, x > 0.1), aes(x=x, y=y), fill="red")
+      }
+      
+      return(p)
+    }
+  })
+  
+  
   
   
   ## Continuous water quality
@@ -958,21 +1047,21 @@ server <- (function(input, output, session) {
     showModal(modalDialog(
       title = "Continuous Monitoring of Dissolved Oxygen, Temperature, Conductance and pH",
       HTML('San Francisco Bay Area Stormwater Municipal Regional Permit (MRP), Provision C.8. on Water Quality Monitoring, 
-      section C.8.d.(iv): "The Permittees shall monitor general water quality parameters of streams using a water quality sonde or equivalent.
-      Parameters shall include dissolved oxygen (mg/L and % saturation), pH, specific conductance (uS), and temperature (C)."
-      <br/>
-      <br/>
-      Exceedances of these water quality parameters are based upon the following thresholds: 
-      <ul> <li>"Maximum Weekly Average Temperature exceeds 17.0 C for a 
-      Steelhead stream, or 20 percent of the instantaneous results exceed 24C...;</li>
-      <li> 20 percent of instantaneous pH results are < 6.5 or > 8.5...; </li>
-      <li> 20 percent of the instantaneous specific conductance results are > 2000 uS, or there is a spike in readings with no obvious natural explanation...;</li>
-      <li> or 20 percent of instantaneous dissolved oxygen results are < 7 mg/L in a cold water fishery stream."</li></ul>'
-        )
-     ,
+           section C.8.d.(iv): "The Permittees shall monitor general water quality parameters of streams using a water quality sonde or equivalent.
+           Parameters shall include dissolved oxygen (mg/L and % saturation), pH, specific conductance (uS), and temperature (C)."
+           <br/>
+           <br/>
+           Exceedances of these water quality parameters are based upon the following thresholds: 
+           <ul> <li>"Maximum Weekly Average Temperature exceeds 17.0 C for a 
+           Steelhead stream, or 20 percent of the instantaneous results exceed 24C...;</li>
+           <li> 20 percent of instantaneous pH results are < 6.5 or > 8.5...; </li>
+           <li> 20 percent of the instantaneous specific conductance results are > 2000 uS, or there is a spike in readings with no obvious natural explanation...;</li>
+           <li> or 20 percent of instantaneous dissolved oxygen results are < 7 mg/L in a cold water fishery stream."</li></ul>'
+      )
+      ,
       
       easyClose = TRUE, footer=modalButton("Got it!")
-    ))
+      ))
   })
   
   wq_data_sub <- function (filter_dates, param_slct, season_slct, ws_slct) {
@@ -983,7 +1072,7 @@ server <- (function(input, output, session) {
           as.Date(date) - as.Date(filter_dates[2])<= 0,
         if (!ws_slct == "all"){ws %in% ws_slct} else ({ws %in% wq_vars_ws}) ) %>% 
       dplyr::filter(if(season_slct == "S_F") {season %in% c("S","F")} else season %in% season_slct )
- 
+    
     data_sub_wq <-
       cbind(data_sub_wq, data_sub_wq[, which(colnames(data_sub_wq) == param_slct)])
     
@@ -997,7 +1086,7 @@ server <- (function(input, output, session) {
   
   
   wq_data_sub_map <- reactive({
- 
+    
     wq_data_sub(filter_dates = as.Date(cut(as.POSIXct(input$wq_dates,tz=''),"month")),
                 param_slct = input$wq_param,
                 season_slct= input$wq_season,
@@ -1006,7 +1095,7 @@ server <- (function(input, output, session) {
   
   
   wq_data_sub_plots <- reactive({
-
+    
     
     wq_data_sub(filter_dates=as.Date(cut(as.POSIXct(input$wq_dates,tz=''),"month")),
                 param_slct=input$wq_param,
@@ -1027,9 +1116,9 @@ server <- (function(input, output, session) {
       addMapPane(name = "polygons", zIndex = 410) %>%
       addMapPane(name = "markers", zIndex = 420) %>% 
       addLegend("topright", title="% WQS exceedance", colors=colors_wq, labels=c("0","0-10", "10-20", "20-30",
-                                                       "30-40", "40-50", "50-60",
-                                                       "60-70", "70-80", "80-90",
-                                                       "90-100"))
+                                                                                 "30-40", "40-50", "50-60",
+                                                                                 "60-70", "70-80", "80-90",
+                                                                                 "90-100"))
   })
   
   # update based on user input
@@ -1039,7 +1128,7 @@ server <- (function(input, output, session) {
     sites_cWQ_mapWQ <- sites_cWQ %>% 
       dplyr::filter(wq_TF == T)
     
-  # % exceedances
+    # % exceedances
     data_sub_wq <- wq_data_sub_map()
     threshold <-
       MRP_threshold[match(colnames(data_sub_wq)[ncol(data_sub_wq)], MRP_threshold$label), 'value_sup']
@@ -1063,9 +1152,9 @@ server <- (function(input, output, session) {
     )
     
     get_color_wq <- function() {
-     
-        return(colors_wq[signif(color_cat,1)*10+1])
-     
+      
+      return(colors_wq[signif(color_cat,1)*10+1])
+      
     }
     
     
@@ -1114,12 +1203,12 @@ server <- (function(input, output, session) {
         popup = popup,
         options = leafletOptions(pane = "markers")
       ) 
-      #addLegendCustom(position="topright", colors=c("blue","orange","purple"),
-      #               shapes = c("square", "circle", "triangle"),
-      #              labels=c("Continuous WQ", "Continuous Temperature", "Both"),
-      #             sizes=c(10,10,10), borders=rep(2,3))
-      
-      
+    #addLegendCustom(position="topright", colors=c("blue","orange","purple"),
+    #               shapes = c("square", "circle", "triangle"),
+    #              labels=c("Continuous WQ", "Continuous Temperature", "Both"),
+    #             sizes=c(10,10,10), borders=rep(2,3))
+    
+    
   })
   
   
@@ -1158,7 +1247,7 @@ server <- (function(input, output, session) {
               col = "red",
               lwd = 1
             ) +
-        
+            
             geom_hline(
               yintercept = threshold_inf,
               lty = 2,
@@ -1179,7 +1268,7 @@ server <- (function(input, output, session) {
       } else
         return(NULL)
     }
-
+  
   
   
   output$wq_boxplot_1 <- renderPlot({
@@ -1239,20 +1328,20 @@ server <- (function(input, output, session) {
   })
   
   
- 
-# Continuous Temperature 
-#################################################################################################################################
+  
+  # Continuous Temperature 
+  #################################################################################################################################
   
   observeEvent(input$temp_desc,{
     showModal(modalDialog(
       title = "Continuous Monitoring of Dissolved Oxygen, Temperature, Conductance and pH",
       HTML('San Francisco Bay Area Stormwater Municipal Regional Permit (MRP), Provision C.8. on Water Quality Monitoring, 
            section (iii): "The Permittees shall monitor temperature of their streams using a digital temperature logger or equivalent [...]
-            at 60-minute intervals from April through September"
+           at 60-minute intervals from April through September"
            <br/>
            <br/>
            Exceedances of temperature parameters are based upon the following thresholds: 
-          "The temperature trigger is defined as when two or more weekly average temperatures exceed the Maximum Weekly Average
+           "The temperature trigger is defined as when two or more weekly average temperatures exceed the Maximum Weekly Average
            Temperature of 17.0 C for a Steelhead stream, or when 20% of the results at one sampling station exceed the instantaneous maximum of 24.0 C."')
       ,
       
@@ -1266,7 +1355,7 @@ server <- (function(input, output, session) {
       HTML("For the purpose of this map, the temperature color scale corresponds to the average of all the temperature data points over the selected time period. This color scale is only a <i>relative</i> scale, 
            it does not indicate water quality objective exceedances. Rather, it's a simplified way to compare sites with one another."),
       easyClose = TRUE, footer=modalButton("Got it!")
-    ))
+      ))
   })
   
   # update inputs - sub-watersheds - sites
@@ -1301,36 +1390,36 @@ server <- (function(input, output, session) {
     )
     
     get_color_temp <- function(site_id) {
-        if (input$temp_param == "avDayTemp") {
-     
-          df_sub <- df_temp_7DAVG %>%
-            dplyr::filter(as.Date(date) - as.Date(filter_dates[1])>= 0 & 
-                            as.Date(date) - as.Date(filter_dates[2])<= 0)
-          
-          temp_cat <- sapply(site_id,
-                              function(x)
-                                (mean(df_sub$avDayTemp[which(df_sub$site_id == x)])-13)/(21-13))
-
-          return(colors_temp[signif(temp_cat, 1) * 10 + 1])
-        }
-        if (input$temp_param == "avWeek") {
-   
-          df_sub <- df_temp_MWAT %>%
-            filter(as.Date(day1week) - as.Date(filter_dates[1])>= 0 & 
-                     as.Date(day1week) - as.Date(filter_dates[2])<= 0)
-          
-          temp_cat <- sapply(sites_cWQ$site_id,
-                              function(x)
-                                (mean(df_sub$avWeek[which(df_sub$site_id == x)])-13)/(21-13))
-
-          
-          return(colors_temp[signif(temp_cat, 1) * 10 + 1])
+      if (input$temp_param == "avDayTemp") {
+        
+        df_sub <- df_temp_7DAVG %>%
+          dplyr::filter(as.Date(date) - as.Date(filter_dates[1])>= 0 & 
+                          as.Date(date) - as.Date(filter_dates[2])<= 0)
+        
+        temp_cat <- sapply(site_id,
+                           function(x)
+                             (mean(df_sub$avDayTemp[which(df_sub$site_id == x)])-13)/(21-13))
+        
+        return(colors_temp[signif(temp_cat, 1) * 10 + 1])
+      }
+      if (input$temp_param == "avWeek") {
+        
+        df_sub <- df_temp_MWAT %>%
+          filter(as.Date(day1week) - as.Date(filter_dates[1])>= 0 & 
+                   as.Date(day1week) - as.Date(filter_dates[2])<= 0)
+        
+        temp_cat <- sapply(sites_cWQ$site_id,
+                           function(x)
+                             (mean(df_sub$avWeek[which(df_sub$site_id == x)])-13)/(21-13))
+        
+        
+        return(colors_temp[signif(temp_cat, 1) * 10 + 1])
         
       }
       
       else return("black")
       
-     
+      
     }
     
     
@@ -1379,13 +1468,14 @@ server <- (function(input, output, session) {
         popup = popup_temp,
         options = leafletOptions(pane = "markers")
       )      #addLegendCustom(position="topright", colors=c("blue","orange","purple"),
-      #               shapes = c("square", "circle", "triangle"),
-      #              labels=c("Continuous WQ", "Continuous Temperature", "Both"),
-      #             sizes=c(10,10,10), borders=rep(2,3))
-      
-      
+    #               shapes = c("square", "circle", "triangle"),
+    #              labels=c("Continuous WQ", "Continuous Temperature", "Both"),
+    #             sizes=c(10,10,10), borders=rep(2,3))
+    
+    
   })
   
+  ranges <- reactiveValues(x=NULL, y=c(0,30))
   
   time_plot_function <- function(data_sub_temp, param) {
     if (nrow(data_sub_temp) > 0) {
@@ -1403,13 +1493,14 @@ server <- (function(input, output, session) {
         p <-
           ggplot(data = data_sub_temp, aes(x = date, y = avDayTemp)) + geom_line(aes(col =
                                                                                        site_id, group = grp))  +
-          ylim(c(0, 30))  + ylab("Average Daily Temperature (\u00B0C)") +
+          ylab("Average Daily Temperature (\u00B0C)") +
           xlab("Date") +
           theme_bw() +
           geom_hline(yintercept = threshold,
                      linetype = 2,
                      col = "red") +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+          coord_cartesian(xlim=ranges$x, ylim=ranges$y, expand=F)
         
       }
       if (param == "avWeek") {
@@ -1419,13 +1510,14 @@ server <- (function(input, output, session) {
         p <-
           ggplot(data = data_sub_temp, aes(x = day1week, y = avWeek, col = site_id)) + geom_point(aes(shape =
                                                                                                         site_id), size = 2) +
-          ylim(c(0, 30))  + ylab("MWAT (\u00B0C)") + xlab("Date") +
+          ylab("MWAT (\u00B0C)") + xlab("Date") +
           geom_hline(yintercept = threshold,
                      linetype = 2,
                      col = "red") +
           scale_shape_manual(values = seq(1, 15, 1)) +
           theme_bw() +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+          coord_cartesian(xlim=ranges$x, ylim=ranges$y, expand=F) 
       }
       
       return(p + 
@@ -1435,6 +1527,8 @@ server <- (function(input, output, session) {
       NULL
     }
   }
+  
+  
   
   temp_timeseries_1 <- reactive({
     filter_dates <- as.Date(cut(as.POSIXct(input$temp_dates,tz=''),"month"))
@@ -1464,6 +1558,7 @@ server <- (function(input, output, session) {
              ))
     
   })
+  
   
   temp_timeseries_2 <- reactive({
     
@@ -1503,6 +1598,21 @@ server <- (function(input, output, session) {
     p <- temp_timeseries_1()
     return(p)
   })
+  
+  
+  observeEvent(input$temp_timeseries_1_brush,{
+    brush <- input$temp_timeseries_1_brush
+    ranges$x <- c(as.Date(brush$xmin, origin="1970-01-01"), as.Date(brush$xmax, origin="1970-01-01"))
+    ranges$y <- c(brush$ymin, brush$ymax)
+  })
+  
+  observeEvent(input$keyPressed, {
+    ranges$x <- NULL
+    ranges$y <- c(0,30)
+  })
+  
+  
+  
   output$temp_timeseries_2 <- renderPlot({
     p <- temp_timeseries_2()
     return(p)
@@ -1511,7 +1621,7 @@ server <- (function(input, output, session) {
   
   # Creek Trash 
   ################################################################################################################################
-
+  
   data_sub_trash <- reactive({
     df_trash %>% 
       dplyr::filter(juris %in% input$trash_city)
@@ -1531,71 +1641,71 @@ server <- (function(input, output, session) {
   output$bar_trashcat_pathway <- renderPlot({
     
     if (nrow(data_sub_trash())>0){ 
- 
-    df <- data_sub_trash() %>%
-      dplyr::group_by(trashCat) %>%
-      dplyr::summarise(mean_litter=mean(litter_wind, na.rm=T),
-                       mean_camp = mean(illegal_camp, na.rm=T),
-                       mean_dumping = mean(dumping,na.rm=T),
-                       mean_other = mean(other, na.rm=T),
-                       n=n())
       
-    df_avg_pct <- data.frame(trashCat= df$trashCat, pathway="Litter Wind", mean_pct=df$mean_litter, n=df$n)
-    df_avg_pct <- rbind(df_avg_pct,
-                        data.frame(trashCat= df$trashCat, pathway="Dumping", mean_pct=df$mean_dumping,n=df$n),
-                        data.frame(trashCat= df$trashCat, pathway="Illegal Camp", mean_pct=df$mean_camp,n=df$n),
-                        data.frame(trashCat= df$trashCat, pathway="Other", mean_pct=df$mean_other,n=df$n))
-    
-    labels <- sapply(1:4, function(x) paste0(as.character(df[x,1]$trashCat)," (n=",df[x,6], ")"))
-    ggplot(data=df_avg_pct, aes(x=trashCat, y=mean_pct/100, fill=pathway)) + geom_bar(stat="identity") + 
-      xlab("Trash Category") + 
-      guides(fill=guide_legend(title="Pathway:")) + ylab("Percentage Averaged Pathway Contribution") +
-      scale_fill_manual(values=col_pathways) +
-      scale_y_continuous(expand = c(0, 0),labels = percent_format()) +
-      scale_x_discrete(name="Trash Category", labels=labels) +
-      geom_text(aes(label= ifelse(round(mean_pct)>1,round(mean_pct), '')), position=position_stack(vjust=0.5), size=3, col="black") +
-      theme(axis.text.x = element_text(angle = 35, hjust = 1)) 
+      df <- data_sub_trash() %>%
+        dplyr::group_by(trashCat) %>%
+        dplyr::summarise(mean_litter=mean(litter_wind, na.rm=T),
+                         mean_camp = mean(illegal_camp, na.rm=T),
+                         mean_dumping = mean(dumping,na.rm=T),
+                         mean_other = mean(other, na.rm=T),
+                         n=n())
+      
+      df_avg_pct <- data.frame(trashCat= df$trashCat, pathway="Litter Wind", mean_pct=df$mean_litter, n=df$n)
+      df_avg_pct <- rbind(df_avg_pct,
+                          data.frame(trashCat= df$trashCat, pathway="Dumping", mean_pct=df$mean_dumping,n=df$n),
+                          data.frame(trashCat= df$trashCat, pathway="Illegal Camp", mean_pct=df$mean_camp,n=df$n),
+                          data.frame(trashCat= df$trashCat, pathway="Other", mean_pct=df$mean_other,n=df$n))
+      
+      labels <- sapply(1:4, function(x) paste0(as.character(df[x,1]$trashCat)," (n=",df[x,6], ")"))
+      ggplot(data=df_avg_pct, aes(x=trashCat, y=mean_pct/100, fill=pathway)) + geom_bar(stat="identity") + 
+        xlab("Trash Category") + 
+        guides(fill=guide_legend(title="Pathway:")) + ylab("Percentage Averaged Pathway Contribution") +
+        scale_fill_manual(values=col_pathways) +
+        scale_y_continuous(expand = c(0, 0),labels = percent_format()) +
+        scale_x_discrete(name="Trash Category", labels=labels) +
+        geom_text(aes(label= ifelse(round(mean_pct)>1,round(mean_pct), '')), position=position_stack(vjust=0.5), size=3, col="black") +
+        theme(axis.text.x = element_text(angle = 35, hjust = 1)) 
     } else NULL
     
   })
   
   output$hist_items <- renderPlot({
     
-      df <- data_sub_trash()
+    df <- data_sub_trash()
+    
+    if (nrow(df)>0){ 
+      df_items <- data.frame(trashCat = df$trashCat,  rank=1, mainItem= df$prevItem1)
+      df_items <- rbind(df_items, 
+                        data.frame(trashCat = df$trashCat,  rank=2, mainItem= df$prevItem2),
+                        data.frame(trashCat = df$trashCat,   rank=3, mainItem= df$prevItem3),
+                        data.frame(trashCat = df$trashCat, rank=4, mainItem= df$prevItem4),
+                        data.frame(trashCat = df$trashCat,  rank=5, mainItem= df$prevItem5))
+      sort(as.character(unique(df_items$mainItem)))
       
-      if (nrow(df)>0){ 
-    df_items <- data.frame(trashCat = df$trashCat,  rank=1, mainItem= df$prevItem1)
-    df_items <- rbind(df_items, 
-                      data.frame(trashCat = df$trashCat,  rank=2, mainItem= df$prevItem2),
-                      data.frame(trashCat = df$trashCat,   rank=3, mainItem= df$prevItem3),
-                      data.frame(trashCat = df$trashCat, rank=4, mainItem= df$prevItem4),
-                      data.frame(trashCat = df$trashCat,  rank=5, mainItem= df$prevItem5))
-    sort(as.character(unique(df_items$mainItem)))
-    
-    to_replace <- c("Fabric and cloth", "Metal Material", "Other plastic", "Other: balls ", "Other: Balls (soccer, basket, tennis) ", "Paper and cardboard", "Shopping carts", "Single Use Plastic Carryout Bags",  "Single Use Plastic Grovery Bags", "Spray paint cans" ,"Wood material" )
-    replace_by <- c("Fabric and Cloth", "Metal Materials", "Other Plastic", "Other: balls", "Other: balls", "Paper and Cardboard", "Shopping Carts", "Single Use Plastic Grocery Bags", "Single Use Plastic Grocery Bags" , "Spray Paint Cans", "Wood material/debris"  )
-    df_items$mainItem <- sapply(df_items$mainItem, function(x)  if (x %in% to_replace) {replace_by[which(to_replace==x)]} else {as.character(x)})
-    
-    
-    # All trash items
-    ggplot(data=df_items %>% 
-             dplyr::filter(!is.na(mainItem)) %>%
-             dplyr::group_by(mainItem) %>%
-             dplyr::summarise(n=n()) %>%
-             dplyr::arrange(n),
-           aes(x=reorder(mainItem, -n), y=n)) + geom_bar(stat="identity") + 
-      xlab("Trash Category") + ylab("Number of sites with trash category") +  guides(fill= guide_legend(title="Main Trash Items"))+ 
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
-      }
+      to_replace <- c("Fabric and cloth", "Metal Material", "Other plastic", "Other: balls ", "Other: Balls (soccer, basket, tennis) ", "Paper and cardboard", "Shopping carts", "Single Use Plastic Carryout Bags",  "Single Use Plastic Grovery Bags", "Spray paint cans" ,"Wood material" )
+      replace_by <- c("Fabric and Cloth", "Metal Materials", "Other Plastic", "Other: balls", "Other: balls", "Paper and Cardboard", "Shopping Carts", "Single Use Plastic Grocery Bags", "Single Use Plastic Grocery Bags" , "Spray Paint Cans", "Wood material/debris"  )
+      df_items$mainItem <- sapply(df_items$mainItem, function(x)  if (x %in% to_replace) {replace_by[which(to_replace==x)]} else {as.character(x)})
       
-      else {NULL} 
+      
+      # All trash items
+      ggplot(data=df_items %>% 
+               dplyr::filter(!is.na(mainItem)) %>%
+               dplyr::group_by(mainItem) %>%
+               dplyr::summarise(n=n()) %>%
+               dplyr::arrange(n),
+             aes(x=reorder(mainItem, -n), y=n)) + geom_bar(stat="identity") + 
+        xlab("Trash Category") + ylab("Number of sites with trash category") +  guides(fill= guide_legend(title="Main Trash Items"))+ 
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    }
+    
+    else {NULL} 
   })
   
   
   # Map of trash sites 
   
   
-
+  
   
   
   output$trash_map <- renderLeaflet({
@@ -1605,41 +1715,224 @@ server <- (function(input, output, session) {
               lat = 37.3,
               zoom = 9) %>% 
       addLegend(position="topright", title= "Trash Categories",colors=col_trashCat, labels=c("Low", "Moderate","High", "Very High"))
-    })
-    
-    
-    
+  })
+  
+  
+  
   observe({
     
-  req(input$menu_items == "trash")
+    req(input$menu_items == "trash")
     
-  sites_sub <- sites_trash %>% 
-    dplyr::filter(juris %in% input$trash_city)
+    sites_sub <- sites_trash %>% 
+      dplyr::filter(juris %in% input$trash_city)
     
-  get_radius_trash <- function(siteID) {
-    rad <- 6
-    rad <- rad+10*df_trash[match(siteID,df_trash$siteID),"tot_gal_sqft"]/max(df_trash$tot_gal_sqft)}
-  
-  get_color_trash <- function(siteID) {
-    col_trashCat[as.numeric(df_trash[match(siteID,df_trash$siteID),"trashCat"])]}
-  
-  popup_trash <- paste(
-    sep="<br/>",
-    sites_sub$siteID,
-    sites_sub$juris,
-    "<b> Trash Volume (gal/ft2):</b>",
-    signif(df_trash[match(sites_sub$siteID,df_trash$siteID),"tot_gal_sqft"],2)
+    get_radius_trash <- function(siteID) {
+      rad <- 6
+      rad <- rad+10*df_trash[match(siteID,df_trash$siteID),"tot_gal_sqft"]/max(df_trash$tot_gal_sqft)}
     
-  )
-  
-  leafletProxy("trash_map") %>% clearMarkers() %>% 
+    get_color_trash <- function(siteID) {
+      col_trashCat[as.numeric(df_trash[match(siteID,df_trash$siteID),"trashCat"])]}
+    
+    popup_trash <- paste(
+      sep="<br/>",
+      sites_sub$siteID,
+      sites_sub$juris,
+      "<b> Trash Volume (gal/ft2):</b>",
+      signif(df_trash[match(sites_sub$siteID,df_trash$siteID),"tot_gal_sqft"],2)
+      
+    )
+    
+    leafletProxy("trash_map") %>% clearMarkers() %>% 
       addCircleMarkers(lng=sites_sub$dsLong, lat=sites_sub$dsLat, radius=get_radius_trash(sites_sub$siteID),
                        fillColor=get_color_trash(sites_sub$siteID), fillOpacity = 0.9, weight=1, color="blue",
                        popup=popup_trash)
- 
+    
   })  
-
- 
   
-})
+  
+  
+  
+  
+  # Pesticides 
+  ################################################################################################################################
+  
+  
+  
+  # stressors : sediment chemistry or water pesticides 
+  output$stressors <- renderUI({ 
+    if(input$tox_season == "D"){
+      pickerInput(inputId="dry_stressors", label="Stressors:", 
+                  choices=list("Metals" = c("Arsenic", "Cadmium", "Chromium", "Copper", "Lead", "Nickel"),
+                               "Pesticides" = c("Pyrethroid", "Other Pesticides")), selected=tox_vars_stressors_dry[1],
+                  options = pickerOptions(liveSearch = T)
+      )
+      
+    }
+    else {NULL}
+  })
+  
+  # data subsetting
+  
+  tox_data_sub <- reactive({
+    req(!is.null(input$dry_stressors))
+    data_sub <- df_tox %>% 
+      dplyr::filter(year == input$tox_yr, 
+                    season == input$tox_season)
+    data_sub_chem <- df_sedPest %>% 
+      dplyr::filter(year == input$tox_yr,
+                    AnalyteName == input$dry_stressors) %>% 
+      dplyr::select(c(1,3,4,5)) %T>% 
+      {names(.) <- c("StationCode", "StressorName", "StressorQuotient","StressorTrigger")}
+    
+    sites_sub <- sites_tox %>% 
+      filter(StationCode %in% data_sub$StationCode,
+             year(SampleDate)==input$tox_yr) %>% 
+      dplyr::distinct(StationCode, .keep_all=T)
+    
+    if(nrow(data_sub )>0){
+      # filter for First vs. follow up
+      sites_sub <- merge(sites_sub, (data_sub %>% 
+                                       dplyr::filter(sampleType == "First",
+                                                     SigEffect %in% c("Fail","SL")) %>% 
+                                       dplyr::group_by(StationCode) %>%
+                                       dplyr::summarize(n_fail=n(),
+                                                        species_fail = paste(organism_u, collapse="and"),
+                                                        species_pct = paste(organism_u, " with ",PercentEffect, " % Effect", sep="",collapse=" and ")) %>%
+                                       as.data.frame()),all=T) %>% 
+        dplyr::mutate(n_fail = ifelse(is.na(n_fail), 0,n_fail))
+      
+      sites_sub$followups <- sapply(seq(1:nrow(sites_sub)), function(x) 
+        
+        ifelse(length(df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up"
+                             & df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                               df_tox$organism_u %in% strsplit(sites_sub$species_fail, split="and"),"SigEffect"]) > 0, 
+               
+               
+               paste(
+                 df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up" &
+                          df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                          df_tox$organism_u %in% strsplit(sites_sub$species_fail,split="and"),"organism_u"],": ",
+                 df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up" &
+                          df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                          df_tox$organism_u %in% strsplit(sites_sub$species_fail,split="and"),"SigEffect"], " with ",
+                 df_tox[df_tox$StationCode == sites_sub$StationCode[x] & df_tox$sampleType == "Follow-up" &
+                          df_tox$year == input$tox_yr & df_tox$season == input$tox_season & 
+                          df_tox$organism_u %in% strsplit(sites_sub$species_fail,split="and"),"PercentEffect"], "% Effect",
+                 sep="", collapse="and"), 
+               "None"
+        ))
+      
+      sites_sub <- merge(sites_sub,data_sub_chem, all=T)
+      
+      return(sites_sub)
+      
+      
+    }
+    else return(data.frame())
+    
+    
+    
+  })
+  
+  
+  output$map_tox <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      setView(lng = -122,
+              lat = 37.3,
+              zoom = 9) %>% 
+      addLegendCustom("topright", title="Significant toxicity to...",colors=colors_tox, labels=c("0 species","1 species","2 species","3 species"), shapes=rep("circle",4), sizes=rep(10,4)) %>% 
+      
+      addLegend("bottomright", title="Stressor Concentration",colors=c(colors_chem, "grey"), labels=c("Below Threshold", "Above Threshold", "No data for this stressor"))
+  })
+  
+  
+  observe({
+    
+    req(input$menu_items == "pesticide")
+    leafletProxy("map_tox") %>% clearMarkers() %>% clearShapes()
+    
+    sites_sub <- tox_data_sub()
+    
+    get_color_chem <- function(trigger){ 
+      if (input$tox_season == "D") 
+      {colors <- colors_chem[trigger+1]
+      colors[is.na(colors)] <- "grey"
+      return(colors)}
+      else "grey"} 
+    
+    
+    if (nrow(sites_sub) >0){
+      
+      popup_tox <- paste(
+        sep="</br>", 
+        sites_sub$StationCode, 
+        ifelse(sites_sub$n_fail >= 1, 
+               paste("<b> Significant Toxicity for: </b></br>", 
+                     sites_sub$species_pct,
+                     "</br><b>Follow-ups?</b>","</br>", 
+                     sites_sub$followups
+                     
+               ), 
+               "<b>No significant toxicity</b>")
+        
+        
+        
+      )
+      
+      leafletProxy("map_tox") %>% clearMarkers() %>% clearShapes() %>% 
+        addRectangles(data=sites_sub %>% na.omit(), 
+                      lat1=sites_sub$TargetLatitude-0.02, lng1=sites_sub$TargetLongitude-0.02,
+                      lat2=sites_sub$TargetLatitude+0.02, lng2=sites_sub$TargetLongitude+0.02,
+                      fillColor=get_color_chem(sites_sub$StressorTrigger), fillOpacity=0.5, opacity=0,
+                      label=paste("Stressor Quotient:", signif(sites_sub$StressorQuotient,2)))    %>%
+        addCircleMarkers(data=sites_sub, lat=sites_sub$TargetLatitude, 
+                         lng=sites_sub$TargetLongitude,
+                         fillColor=colors_tox[sites_sub$n_fail+1], label=paste(sites_sub$n_fail),
+                         fillOpacity=0.8, weight=1, radius=6, 
+                         popup=popup_tox) 
+    }
+  })
+  
+  
+  # Pathogens
+  ##########################################################################################################
+  
+  data_sub_patho <- reactive({
+    df_patho %>% 
+      dplyr::filter(year >= input$patho_yr[1] & year <=input$patho_yr[2],
+                    Analyte== input$patho_analyte) %>% 
+      dplyr::arrange(desc(year))
+  })
+  
+  
+  output$map_patho <- renderLeaflet({
+    leaflet() %>% 
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      setView(lng = -121.8,
+              lat = 37.3,
+              zoom = 9)
+  })
+  
+  
+  observe({
+    req(input$menu_items == "pathogens")
+    
+    data_sub <- data_sub_patho()
+    popup_patho <- paste(sep="</br>",
+                         "<b>Station Code:</b>", 
+                         data_sub$Station_Code, 
+                         paste("<b>",input$patho_analyte, "concentration (MPN/100mL):</b>",
+                               data_sub$Result))
+    
+    leafletProxy("map_patho") %>% clearMarkers() %>% clearMarkerClusters() %>%
+      addCircleMarkers(lng=data_sub$Longitude, lat= data_sub$Latitude, color= patho_col[data_sub$exceedance+1], 
+                       popup = popup_patho, fillOpacity = 0.8, radius=10,label= paste(data_sub$year),
+                       clusterOptions = markerClusterOptions(showCoverageOnHover = F, freezeAtZoom = 15
+                       )
+      )
+  })  
+  
+  
+  })
 
